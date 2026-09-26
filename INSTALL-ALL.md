@@ -1,23 +1,21 @@
 # Install all Oracle Dev Tools locally
 
-The suite includes a single cross-platform installer:
+The suite includes one cross-platform installer:
 
 ```text
 install_all.py
 ```
 
-It supports:
+It supports Windows, Linux and macOS and installs both:
 
-- Windows 10/11
-- Linux
-- macOS
-- Python 3.10 or newer
+- all command-line tools;
+- a local browser UI for all Oracle Dev Tools.
 
-No Git installation is required. Packages are downloaded from GitHub as ZIP archives and installed into an isolated virtual environment.
+Python 3.10 or newer is required.
+
+No Git installation is required. Packages are downloaded from GitHub as ZIP archives.
 
 ## Quick start
-
-Download `install_all.py` from this repository, then run:
 
 ### Windows
 
@@ -31,53 +29,135 @@ If `py` is unavailable:
 python install_all.py
 ```
 
-### Linux
+### Linux / macOS
 
 ```bash
 python3 install_all.py
 ```
 
-### macOS
-
-```bash
-python3 install_all.py
-```
-
-By default, the installer uses:
-
-```text
-~/.oracle-dev-tools/
-```
-
-and creates:
+The installer creates an isolated environment under:
 
 ```text
 ~/.oracle-dev-tools/
 ├── venv/
-└── bin/
+├── bin/
+├── web/
+├── config.json
+└── serve_web.py
 ```
 
-The `bin` directory contains launchers for every command-line tool.
+## Local browser port
 
-## Add the tools to PATH
+During interactive installation, the installer displays a short list of allowed ports and marks which ones are available.
+
+Current choices:
+
+```text
+8000
+8080
+8888
+9000
+9090
+9876
+5000
+5500
+7000
+7777
+8765
+9999
+```
+
+The default is `8765` when available.
+
+You can also choose the port non-interactively:
+
+```bash
+python3 install_all.py --yes --port 8080
+```
+
+Windows:
+
+```powershell
+py install_all.py --yes --port 8080
+```
+
+If the selected port is already in use, installation stops with a clear error instead of silently choosing another address.
+
+## Run the tools in your local browser
+
+After installation, start the local web UI with:
+
+### Linux / macOS
+
+```bash
+oracle-dev-tools-web
+```
+
+### Windows
+
+```powershell
+oracle-dev-tools-web
+```
+
+If the installer directory was not added to PATH, the final installation message prints the full launcher path.
+
+The command:
+
+1. starts a local HTTP server bound only to `127.0.0.1`;
+2. opens your default browser automatically;
+3. serves the complete Oracle Dev Tools landing page and browser playground.
+
+For the default port, the address is:
+
+```text
+http://127.0.0.1:8765/
+```
+
+For example, if you choose port `8080`:
+
+```text
+http://127.0.0.1:8080/
+```
+
+Stop the local server with:
+
+```text
+Ctrl+C
+```
+
+The server is bound to localhost only; it is not exposed to other machines on your network.
+
+## Install and start immediately
+
+You can ask the installer to launch the browser UI immediately after installation:
+
+```bash
+python3 install_all.py --yes --port 8765 --start-web
+```
+
+On Windows:
+
+```powershell
+py install_all.py --yes --port 8765 --start-web
+```
+
+Note: `--start-web` keeps the terminal occupied while the local server is running. Use `Ctrl+C` to stop it.
+
+## Add all commands to PATH
 
 Interactive installation asks whether the launcher directory should be added to the user's PATH.
 
 For unattended installation:
 
 ```bash
-python3 install_all.py --yes --add-to-path
-```
-
-On Windows:
-
-```powershell
-py install_all.py --yes --add-to-path
+python3 install_all.py --yes --add-to-path --port 8765
 ```
 
 After PATH is updated, open a new terminal.
 
-You can then run commands such as:
+## CLI usage
+
+The command-line tools remain available independently of the browser UI:
 
 ```bash
 ora-impact query.sql
@@ -93,15 +173,21 @@ ora-schema-explorer ./schema
 python3 install_all.py --check
 ```
 
-or on Windows:
+Windows:
 
 ```powershell
 py install_all.py --check
 ```
 
-The check verifies all CLI entry points and runs `pip check`.
+The check verifies:
 
-## Update the entire suite
+- all CLI entry points;
+- Python package dependencies with `pip check`;
+- local browser files;
+- local web server launcher;
+- configured local browser URL.
+
+## Update the complete suite
 
 Run the installer again:
 
@@ -109,7 +195,13 @@ Run the installer again:
 python3 install_all.py --yes
 ```
 
-The packages are reinstalled from each repository's current `main` branch.
+It reinstalls the current `main` version of each repository and refreshes the local browser UI.
+
+To keep a specific configured port:
+
+```bash
+python3 install_all.py --yes --port 8080
+```
 
 ## Uninstall
 
@@ -123,7 +215,7 @@ For unattended removal:
 python3 install_all.py --uninstall --yes
 ```
 
-The installer removes the dedicated environment and any PATH entry it created.
+The installer removes the isolated environment, local browser UI and any PATH entry it created.
 
 ## Included tools
 
@@ -156,4 +248,4 @@ General companion tools:
 
 ## Why an isolated environment?
 
-Installing the suite into `~/.oracle-dev-tools/venv` avoids modifying the operating system Python installation and works cleanly on modern Linux distributions that enforce externally-managed Python environments.
+Installing into `~/.oracle-dev-tools/venv` avoids changing the operating system Python installation and works cleanly with modern Linux distributions that enforce externally managed Python environments.
