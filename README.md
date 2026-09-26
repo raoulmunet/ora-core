@@ -122,6 +122,18 @@ Downstream tools must surface these limitations rather than silently guessing.
 3. **Version clarity** — Oracle 19c, 23ai and 26ai differences must be called out explicitly.
 4. **Small API surface** — companion tools should be able to depend on the core without pulling a large framework.
 
+## Install the complete suite locally
+
+A single cross-platform installer is available for Windows, Linux and macOS:
+
+```bash
+python install_all.py
+```
+
+It creates an isolated environment, installs the full Oracle Dev Tools suite plus the two general companion tools, creates CLI launchers, and can optionally add them to the user's PATH.
+
+See [INSTALL-ALL.md](INSTALL-ALL.md) for Windows/Linux/macOS instructions, verification, update and uninstall commands.
+
 ## Browser playground
 
 All Oracle Dev Tools can be opened in the browser from the GitHub Pages hub. The shared playground runs locally in the browser and exposes a direct URL per tool, for example:
