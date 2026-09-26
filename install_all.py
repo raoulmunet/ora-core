@@ -23,7 +23,7 @@ MIN_PYTHON = (3, 10)
 DEFAULT_ROOT = Path.home() / ".oracle-dev-tools"
 DEFAULT_PORT = 8765
 PORT_CHOICES = [8000, 8080, 8888, 9000, 9090, 9876, 5000, 5500, 7000, 7777, 8765, 9999]
-WEB_FILES = ["index.html", "playground.html", ".nojekyll"]
+WEB_FILES = ["index.html", "playground.html", "playground.js", ".nojekyll"]
 
 # Install dependency providers first. Direct GitHub ZIP URLs avoid requiring git.
 REPOSITORIES = [
