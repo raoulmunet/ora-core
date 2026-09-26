@@ -12,12 +12,18 @@ import argparse
 import os
 import platform
 import shutil
+import socket
 import subprocess
 import sys
+import json
+import urllib.request
 from pathlib import Path
 
 MIN_PYTHON = (3, 10)
 DEFAULT_ROOT = Path.home() / ".oracle-dev-tools"
+DEFAULT_PORT = 8765
+PORT_CHOICES = [8000, 8080, 8888, 9000, 9090, 9876, 5000, 5500, 7000, 7777, 8765, 9999]
+WEB_FILES = ["index.html", "playground.html", ".nojekyll"]
 
 # Install dependency providers first. Direct GitHub ZIP URLs avoid requiring git.
 REPOSITORIES = [
@@ -99,6 +105,71 @@ def launcher_dir(root):
     return root / "bin"
 
 
+def web_root(root):
+    return root / "web"
+
+
+def config_path(root):
+    return root / "config.json"
+
+
+def port_is_available(port):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        sock.bind(("127.0.0.1", port))
+        return True
+    except OSError:
+        return False
+    finally:
+        sock.close()
+
+
+def choose_port(requested=None, interactive=True):
+    if requested is not None:
+        if requested not in PORT_CHOICES:
+            die(
+                "Port {} is not in the allowed list: {}".format(
+                    requested, ", ".join(str(x) for x in PORT_CHOICES)
+                )
+            )
+        if not port_is_available(requested):
+            die("Port {} is already in use.".format(requested))
+        return requested
+
+    available = [p for p in PORT_CHOICES if port_is_available(p)]
+    if not available:
+        die("None of the configured local web ports are currently available.")
+
+    preferred = DEFAULT_PORT if DEFAULT_PORT in available else available[0]
+    if not interactive:
+        return preferred
+
+    print("\nChoose the local browser port:")
+    for i, port in enumerate(PORT_CHOICES, 1):
+        status = "available" if port in available else "in use"
+        default = " [default]" if port == preferred else ""
+        print("  {:>2}. {:>5}  {}{}".format(i, port, status, default))
+
+    while True:
+        answer = input("Port number or list index [{}]: ".format(preferred)).strip()
+        if not answer:
+            return preferred
+        try:
+            value = int(answer)
+        except ValueError:
+            print("Please enter a port number or list index.")
+            continue
+
+        candidate = PORT_CHOICES[value - 1] if 1 <= value <= len(PORT_CHOICES) else value
+        if candidate not in PORT_CHOICES:
+            print("Choose one of: {}".format(", ".join(str(x) for x in PORT_CHOICES)))
+            continue
+        if candidate not in available:
+            print("Port {} is already in use.".format(candidate))
+            continue
+        return candidate
+
+
 def run(cmd, env=None):
     print("+", " ".join(str(x) for x in cmd))
     subprocess.run([str(x) for x in cmd], check=True, env=env)
@@ -138,6 +209,97 @@ def install_suite(root):
     run([py, "-m", "pip", "check"])
 
 
+def install_web_ui(root, port):
+    target = web_root(root)
+    target.mkdir(parents=True, exist_ok=True)
+    base = "https://raw.githubusercontent.com/{}/ora-core/main/docs".format(OWNER)
+
+    for name in WEB_FILES:
+        url = base + "/" + name
+        destination = target / name
+        print("Downloading web UI:", url)
+        try:
+            urllib.request.urlretrieve(url, destination)
+        except Exception as exc:
+            die("Could not download {}: {}".format(url, exc))
+
+    config_path(root).write_text(
+        json.dumps(
+            {
+                "host": "127.0.0.1",
+                "port": port,
+                "url": "http://127.0.0.1:{}/".format(port),
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+
+def write_web_server(root):
+    server = root / "serve_web.py"
+    server.write_text(
+        """#!/usr/bin/env python3
+import argparse
+import http.server
+import json
+import os
+import socketserver
+import threading
+import time
+import webbrowser
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+CONFIG = ROOT / "config.json"
+WEB = ROOT / "web"
+
+def main():
+    parser = argparse.ArgumentParser(description="Run Oracle Dev Tools in a local browser.")
+    parser.add_argument("--port", type=int, help="Override configured port for this run.")
+    parser.add_argument("--no-browser", action="store_true", help="Do not open the default browser.")
+    args = parser.parse_args()
+
+    cfg = json.loads(CONFIG.read_text(encoding="utf-8")) if CONFIG.exists() else {}
+    port = args.port or int(cfg.get("port", 8765))
+    host = "127.0.0.1"
+    url = "http://{}:{}/".format(host, port)
+
+    if not WEB.exists():
+        raise SystemExit("Web UI directory not found: {}".format(WEB))
+
+    os.chdir(WEB)
+
+    class Server(socketserver.TCPServer):
+        allow_reuse_address = True
+
+    try:
+        with Server((host, port), http.server.SimpleHTTPRequestHandler) as httpd:
+            print("Oracle Dev Tools local web UI")
+            print("Address: {}".format(url))
+            print("Press Ctrl+C to stop.")
+            if not args.no_browser:
+                threading.Thread(
+                    target=lambda: (time.sleep(0.6), webbrowser.open(url)),
+                    daemon=True,
+                ).start()
+            httpd.serve_forever()
+    except OSError as exc:
+        raise SystemExit(
+            "Cannot start local web server on port {}: {}".format(port, exc)
+        )
+    except KeyboardInterrupt:
+        print("\nStopped.")
+
+if __name__ == "__main__":
+    main()
+""",
+        encoding="utf-8",
+    )
+    if os.name != "nt":
+        server.chmod(0o755)
+
+
 def write_launchers(root):
     target = launcher_dir(root)
     target.mkdir(parents=True, exist_ok=True)
@@ -159,6 +321,24 @@ def write_launchers(root):
                 encoding="utf-8",
             )
             wrapper.chmod(0o755)
+
+    if os.name == "nt":
+        web_launcher = target / "oracle-dev-tools-web.cmd"
+        web_launcher.write_text(
+            '@echo off\r\n"{}" "{}" %*\r\n'.format(
+                venv_python(root), root / "serve_web.py"
+            ),
+            encoding="utf-8",
+        )
+    else:
+        web_launcher = target / "oracle-dev-tools-web"
+        web_launcher.write_text(
+            '#!/bin/sh\nexec "{}" "{}" "$@"\n'.format(
+                venv_python(root), root / "serve_web.py"
+            ),
+            encoding="utf-8",
+        )
+        web_launcher.chmod(0o755)
 
     if os.name == "nt":
         activate = target / "activate-oracle-dev-tools.cmd"
@@ -300,21 +480,36 @@ def check_installation(root):
         die("{} CLI tool(s) are missing.".format(len(failed)), 3)
 
     run([py, "-m", "pip", "check"])
+
+    web_missing = [name for name in WEB_FILES if not (web_root(root) / name).exists()]
+    if web_missing:
+        die("Local web UI is incomplete: {}".format(", ".join(web_missing)), 4)
+    if not (root / "serve_web.py").exists():
+        die("Local web server launcher is missing.", 4)
+
     print("\nAll {} CLI tools are installed.".format(len(CLI_TOOLS)))
+    print("Local browser UI is installed.")
 
 
-def print_usage(root):
+def print_usage(root, port):
     bin_dir = launcher_dir(root)
     print("\nInstallation complete.")
     print("Platform :", platform.system(), platform.machine())
     print("Location :", root)
     print("Launchers:", bin_dir)
-    print("\nExamples:")
     prefix = "" if str(bin_dir) in os.environ.get("PATH", "").split(os.pathsep) else str(bin_dir) + os.sep
     suffix = ".cmd" if os.name == "nt" else ""
+
+    print("\nBrowser usage:")
+    print("  Address : http://127.0.0.1:{}/".format(port))
+    print("  Start   : {}oracle-dev-tools-web{}".format(prefix, suffix))
+    print("  Stop    : press Ctrl+C in the terminal running the web server")
+
+    print("\nCLI examples:")
     print("  {}ora-impact{} examples.sql".format(prefix, suffix))
     print("  {}ora-errors{} ORA-01722".format(prefix, suffix))
     print("  {}ora-plan{} plan.txt".format(prefix, suffix))
+
     print("\nCheck installation:")
     print("  {} --check".format(Path(sys.argv[0]).name))
 
@@ -353,6 +548,19 @@ def parse_args():
         action="store_true",
         help="List the repositories installed by this script.",
     )
+    parser.add_argument(
+        "--port",
+        type=int,
+        choices=PORT_CHOICES,
+        help="Local browser port. Allowed: {}".format(
+            ", ".join(str(x) for x in PORT_CHOICES)
+        ),
+    )
+    parser.add_argument(
+        "--start-web",
+        action="store_true",
+        help="Start the local browser UI after installation.",
+    )
     return parser.parse_args()
 
 
@@ -377,12 +585,18 @@ def main():
 
     if args.check:
         check_installation(root)
+        if config_path(root).exists():
+            cfg = json.loads(config_path(root).read_text(encoding="utf-8"))
+            print("Local web address:", cfg.get("url", "not configured"))
         return 0
 
     root.mkdir(parents=True, exist_ok=True)
+    port = choose_port(args.port, interactive=not args.yes)
     create_venv(root)
     upgrade_packaging(root)
     install_suite(root)
+    install_web_ui(root, port)
+    write_web_server(root)
     write_launchers(root)
 
     should_add = args.add_to_path
@@ -395,7 +609,12 @@ def main():
         print(message if ok else "Could not update PATH automatically: " + message)
 
     check_installation(root)
-    print_usage(root)
+    print_usage(root, port)
+
+    if args.start_web:
+        print("\nStarting local browser UI...")
+        run([venv_python(root), root / "serve_web.py"])
+
     return 0
 
 
