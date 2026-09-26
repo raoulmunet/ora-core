@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Oracle Dev Tools</title>
+<meta name="description" content="A family of small, composable Oracle developer tools for SQL, PL/SQL, data engineering, troubleshooting and documentation.">
+<style>
+:root{
+  --bg:#0b1020;--panel:#121933;--panel2:#0f162d;--text:#eef2ff;--muted:#aab4d6;
+  --line:#2b355d;--accent:#93c5fd;--accent2:#c4b5fd;--ok:#86efac;
+}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(180deg,#0b1020 0%,#0c1224 100%);color:var(--text)}
+a{color:inherit;text-decoration:none}.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+header{padding:72px 0 42px;border-bottom:1px solid var(--line)}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 11px;border:1px solid var(--line);border-radius:999px;color:#dbeafe;font-size:13px;background:#0f162d}
+h1{font-size:clamp(44px,8vw,78px);line-height:.98;letter-spacing:-.04em;margin:18px 0 18px}
+.lead{font-size:21px;line-height:1.6;color:var(--muted);max-width:850px}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.btn{padding:11px 15px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:650}
+.btn.primary{background:#e8eefc;color:#0b1020;border-color:#e8eefc}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:34px}
+.metric{padding:16px;border:1px solid var(--line);border-radius:14px;background:rgba(18,25,51,.65)}
+.metric strong{font-size:24px}.metric span{display:block;color:var(--muted);font-size:13px;margin-top:4px}
+section{padding:44px 0}.section-head{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:20px}
+h2{font-size:32px;margin:0}.section-head p{margin:0;color:var(--muted);max-width:680px}
+.compat{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);overflow:hidden;border-radius:14px}
+.compat th,.compat td{padding:14px 16px;border-bottom:1px solid var(--line);text-align:left}.compat tr:last-child td{border-bottom:0}.yes{color:var(--ok);font-weight:700}
+.arch{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:20px;overflow:auto}
+.arch pre{margin:0;color:#dbeafe;font-size:14px;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.card{display:flex;flex-direction:column;min-height:225px;padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--panel);transition:.15s ease}
+.card:hover{transform:translateY(-2px);border-color:#4c5c94}
+.card .name{font-size:20px;font-weight:800;margin-bottom:7px}.card p{color:var(--muted);line-height:1.5;margin:0 0 14px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}.tag{font-size:12px;padding:5px 8px;border-radius:999px;background:#192343;color:#cbd5e1}
+.links{display:flex;gap:12px;margin-top:15px;font-size:13px;color:var(--accent)}
+.category{margin-top:34px}.category h3{font-size:21px;margin:0 0 14px;color:#dbeafe}
+.note{padding:18px;border-radius:14px;border:1px solid var(--line);background:#0f162d;color:var(--muted);line-height:1.6}
+footer{padding:36px 0 60px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.metrics{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){header{padding-top:48px}.grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}.section-head{display:block}.section-head p{margin-top:8px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Oracle Database · 19c · 23ai · 26ai</div>
+    <h1>Oracle Dev Tools</h1>
+    <p class="lead">A family of small, composable developer tools for Oracle SQL, PL/SQL, data engineering, troubleshooting, documentation and source-level analysis. Built to be useful offline, explicit about limitations, and easy to try.</p>
+    <div class="actions">
+      <a class="btn primary" href="https://github.com/raoulmunet/ora-core">Explore the core</a>
+      <a class="btn" href="https://github.com/raoulmunet?tab=repositories&q=ora-&type=source">Browse all Oracle tools</a>
+      <a class="btn" href="https://raoulmunet.github.io/oracle-db-developer-handbook/">Oracle DB Developer Handbook</a>
+    </div>
+    <div class="metrics">
+      <div class="metric"><strong>19</strong><span>Oracle-focused tools</span></div>
+      <div class="metric"><strong>3</strong><span>Oracle versions targeted</span></div>
+      <div class="metric"><strong>4</strong><span>Python versions in CI</span></div>
+      <div class="metric"><strong>MIT</strong><span>Open-source license</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+<section>
+  <div class="section-head">
+    <h2>Compatibility</h2>
+    <p>Each repository documents exceptions explicitly. When a feature is not portable across all supported Oracle releases, the README must say so near the top.</p>
+  </div>
+  <table class="compat">
+    <tr><th>Oracle version</th><th>Suite target</th><th>Notes</th></tr>
+    <tr><td>Oracle Database 19c</td><td class="yes">Supported</td><td>Conservative syntax and offline analysis where possible.</td></tr>
+    <tr><td>Oracle Database 23ai</td><td class="yes">Supported</td><td>Common SQL/PLSQL patterns supported across the suite.</td></tr>
+    <tr><td>Oracle AI Database 26ai</td><td class="yes">Supported</td><td>Newer syntax is documented when a tool adds dedicated support.</td></tr>
+  </table>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>How the suite fits together</h2>
+    <p><code>ora-core</code> provides lightweight shared analysis primitives. Higher-level tools stay focused and reusable instead of duplicating parser logic.</p>
+  </div>
+  <div class="arch"><pre>
+                           ┌──────────────────────┐
+                           │      ora-core        │
+                           │ shared SQL analysis  │
+                           └──────────┬───────────┘
+                                      │
+             ┌────────────────────────┼─────────────────────────┐
+             │                        │                         │
+             ▼                        ▼                         ▼
+     SQL analysis tools       Data / operations tools     PL/SQL analysis
+     ──────────────────       ─────────────────────       ───────────────
+     ora-impact               ora-doc                     ora-exception-flow
+     ora-plan                 ora-data-quality            ora-call-graph
+     ora-lineage              ora-csv-loader              ora-dead-code
+     ora-lint                 ora-etl-log
+     ora-sql-diff             ora-migration-check
+     ora-sql-complexity       ora-errors
+     ora-join-viz             ora-schema-explorer
+     ora-bind
+  </pre></div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>Toolbox</h2>
+    <p>Each tool is intentionally narrow: one problem, one clear CLI, examples, tests, and explicit scope.</p>
+  </div>
+
+  <div class="category"><h3>Foundation</h3>
+    <div class="grid">
+      <a class="card" href="https://github.com/raoulmunet/ora-core"><div class="name">ora-core</div><p>Shared Oracle SQL static-analysis primitives used across the suite.</p><div class="tags"><span class="tag">parser</span><span class="tag">static analysis</span><span class="tag">Python</span></div></a>
+    </div>
+  </div>
+
+  <div class="category"><h3>SQL analysis</h3>
+    <div class="grid">
+      <div class="card"><div class="name">ora-impact</div><p>Find read/write object dependencies in Oracle SQL.</p><div class="tags"><span class="tag">impact analysis</span><span class="tag">dependencies</span></div><div class="links"><a href="https://github.com/raoulmunet/ora-impact">Repo</a><a href="https://raoulmunet.github.io/ora-impact/">Demo</a></div></div>
+      <div class="card"><div class="name">ora-plan</div><p>Explain DBMS_XPLAN output in readable terms with review hints.</p><div class="tags"><span class="tag">execution plan</span><span class="tag">performance</span></div><div class="links"><a href="https://github.com/raoulmunet/ora-plan">Repo</a><a href="https://raoulmunet.github.io/ora-plan/">Demo</a></div></div>
+      <div class="card"><div class="name">ora-lineage</div><p>Trace table-level and simple column-level SQL lineage.</p><div class="tags"><span class="tag">lineage</span><span class="tag">ETL</span></div><div class="links"><a href="https://github.com/raoulmunet/ora-lineage">Repo</a><a href="https://raoulmunet.github.io/ora-lineage/">Demo</a></div></div>
+      <a class="card" href="https://github.com/raoulmunet/ora-lint"><div class="name">ora-lint</div><p>High-signal Oracle SQL and PL/SQL anti-pattern checks.</p><div class="tags"><span class="tag">lint</span><span class="tag">code quality</span></div></a>
+      <a class="card" href="https://github.com/raoulmunet/ora-sql-diff"><div class="name">ora-sql-diff</div><p>Structural SQL diff that ignores formatting noise and highlights meaningful changes.</p><div class="tags"><span class="tag">diff</span><span class="tag">code review</span></div></a>
+      <a class="card" href="https://github.com/raoulmunet/ora-sql-complexity"><div class="name">ora-sql-complexity</div><p>Transparent structural metrics and a documented heuristic complexity band.</p><div class="tags"><span class="tag">metrics</span><span class="tag">review</span></div></a>
+      <div class="card"><div class="name">ora-join-viz</div><p>Visualize ANSI JOIN relationships from Oracle SQL.</p><div class="tags"><span class="tag">joins</span><span class="tag">visualization</span></div><div class="links"><a href="https://github.com/raoulmunet/ora-join-viz">Repo</a><a href="https://raoulmunet.github.io/ora-join-viz/">Demo</a></div></div>
+      <a class="card" href="https://github.com/raoulmunet/ora-bind"><div class="name">ora-bind</div><p>Convert common hard-coded SQL literals into bind variables.</p><div class="tags"><span class="tag">bind variables</span><span class="tag">SQL</span></div></a>
+    </div>
+  </div>
+
+  <div class="category"><h3>Data & operations</h3>
+    <div class="grid">
+      <a class="card" href="https://github.com/raoulmunet/ora-doc"><div class="name">ora-doc</div><p>Generate Markdown and Mermaid documentation from common Oracle DDL.</p><div class="tags"><span class="tag">DDL</span><span class="tag">docs</span></div></a>
+      <a class="card" href="https://github.com/raoulmunet/ora-data-quality"><div class="name">ora-data-quality</div><p>Generate deterministic checks and clearly labelled data-quality candidates from DDL.</p><div class="tags"><span class="tag">data quality</span><span class="tag">rules</span></div></a>
+      <a class="card" href="https://github.com/raoulmunet/ora-csv-loader"><div class="name">ora-csv-loader</div><p>Infer starter datatypes from CSV and generate Oracle DDL / SQL*Loader artifacts.</p><div class="tags"><span class="tag">CSV</span><span class="tag">SQL*Loader</span></div></a>
+      <a class="card" href="https://github.com/raoulmunet/ora-etl-log"><div class="name">ora-etl-log</div><p>Summarize timestamped ETL/batch logs and extract ORA errors.</p><div class="tags"><span class="tag">ETL</span><span class="tag">batch</span></div></a>
+      <a class="card" href="https://github.com/raoulmunet/ora-migration-check"><div class="name">ora-migration-check</div><p>Flag Oracle SQL constructs that deserve attention before PostgreSQL or SQL Server migration.</p><div class="tags"><span class="tag">migration</span><span class="tag">portability</span></div></a>
+      <a class="card" href="https://github.com/raoulmunet/ora-errors"><div class="name">ora-errors</div><p>Offline troubleshooting aid for common Oracle ORA errors.</p><div class="tags"><span class="tag">ORA errors</span><span class="tag">troubleshooting</span></div></a>
+      <div class="card"><div class="name">ora-schema-explorer</div><p>Build an offline schema overview from DDL and SQL source files.</p><div class="tags"><span class="tag">schema</span><span class="tag">dependencies</span></div><div class="links"><a href="https://github.com/raoulmunet/ora-schema-explorer">Repo</a><a href="https://raoulmunet.github.io/ora-schema-explorer/">Demo</a></div></div>
+    </div>
+  </div>
+
+  <div class="category"><h3>PL/SQL analysis</h3>
+    <div class="grid">
+      <a class="card" href="https://github.com/raoulmunet/ora-exception-flow"><div class="name">ora-exception-flow</div><p>Visualize exception handlers and whether errors are re-raised or consumed.</p><div class="tags"><span class="tag">exceptions</span><span class="tag">flow</span></div></a>
+      <a class="card" href="https://github.com/raoulmunet/ora-call-graph"><div class="name">ora-call-graph</div><p>Build lightweight procedure, function and package call graphs.</p><div class="tags"><span class="tag">call graph</span><span class="tag">packages</span></div></a>
+      <a class="card" href="https://github.com/raoulmunet/ora-dead-code"><div class="name">ora-dead-code</div><p>Find conservative dead-code candidates for human review.</p><div class="tags"><span class="tag">dead code</span><span class="tag">static analysis</span></div></a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>General developer utilities</h2>
+    <p>Two companion tools are intentionally Oracle-independent.</p>
+  </div>
+  <div class="grid">
+    <a class="card" href="https://github.com/raoulmunet/repo-readme-architect"><div class="name">repo-readme-architect</div><p>Generate accurate README starters from repository structure without inventing unknown project claims.</p><div class="tags"><span class="tag">README</span><span class="tag">docs automation</span></div></a>
+    <a class="card" href="https://github.com/raoulmunet/github-portfolio-generator"><div class="name">github-portfolio-generator</div><p>Generate factual Markdown developer portfolios from public GitHub metadata.</p><div class="tags"><span class="tag">GitHub</span><span class="tag">portfolio</span></div></a>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>Design principles</h2></div>
+  <div class="note">
+    <strong>Small tools, explicit limits.</strong> The suite prefers a precise “cannot determine this safely offline” over invented certainty. Static analysis is useful, but runtime metadata, synonyms, dynamic SQL, view expansion and optimizer behavior can require a live Oracle database. Each repository documents those boundaries.
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap">Oracle Dev Tools · maintained by Raoul Munet · MIT licensed</div></footer>
+</body></html>
