@@ -1,0 +1,35 @@
+name: web ui checks
+
+on:
+  push:
+    paths:
+      - "docs/index.html"
+      - "docs/playground.html"
+      - "docs/playground.js"
+      - ".github/workflows/web-ui.yml"
+  pull_request:
+    paths:
+      - "docs/index.html"
+      - "docs/playground.html"
+      - "docs/playground.js"
+
+jobs:
+  javascript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check playground JavaScript syntax
+        run: node --check docs/playground.js
+      - name: Check required browser files
+        run: |
+          test -s docs/index.html
+          test -s docs/playground.html
+          test -s docs/playground.js
+          grep -q 'id="installModal"' docs/index.html
+          grep -q 'id="sampleLevel"' docs/playground.html
+          grep -q 'Simple' docs/playground.js
+          grep -q 'Intermediate' docs/playground.js
+          grep -q 'Complex' docs/playground.js
