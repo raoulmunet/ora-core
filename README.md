@@ -122,6 +122,16 @@ Downstream tools must surface these limitations rather than silently guessing.
 3. **Version clarity** — Oracle 19c, 23ai and 26ai differences must be called out explicitly.
 4. **Small API surface** — companion tools should be able to depend on the core without pulling a large framework.
 
+## Browser playground
+
+All Oracle Dev Tools can be opened in the browser from the GitHub Pages hub. The shared playground runs locally in the browser and exposes a direct URL per tool, for example:
+
+- `https://raoulmunet.github.io/ora-core/playground.html?tool=ora-impact`
+- `https://raoulmunet.github.io/ora-core/playground.html?tool=ora-lint`
+- `https://raoulmunet.github.io/ora-core/playground.html?tool=ora-sql-diff`
+
+The Python CLI remains the reference implementation for each repository.
+
 ## Oracle Dev Tools landing page
 
 The suite has a single visual landing page in [`docs/index.html`](docs/index.html), intended to be published with GitHub Pages from the `main` branch and `/docs` folder.
