@@ -39,6 +39,11 @@ h2{font-size:32px;margin:0}.section-head p{margin:0;color:var(--muted);max-width
 footer{padding:36px 0 60px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
 @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.metrics{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:620px){header{padding-top:48px}.grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}.section-head{display:block}.section-head p{margin-top:8px}}
+
+.modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,.78);display:none;align-items:center;justify-content:center;padding:20px;z-index:9999}
+.modal-backdrop.open{display:flex}.modal{max-width:720px;width:100%;background:#121933;border:1px solid #3b4775;border-radius:18px;padding:24px;box-shadow:0 24px 80px rgba(0,0,0,.45)}
+.modal h2{margin:0 0 10px}.modal p,.modal li{color:var(--muted);line-height:1.55}.modal code{background:#080d1b;padding:2px 6px;border-radius:6px}.modal-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:22px}
+.use-card{min-height:180px}.mode-title{font-size:18px;font-weight:800;margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -63,6 +68,31 @@ footer{padding:36px 0 60px;border-top:1px solid var(--line);color:var(--muted);f
 </header>
 
 <main class="wrap">
+
+<section>
+  <div class="section-head">
+    <h2>Use Oracle Dev Tools your way</h2>
+    <p>The same tools can be tried online, installed one by one from GitHub, or installed together as a local browser + CLI suite.</p>
+  </div>
+  <div class="grid">
+    <div class="card use-card">
+      <div class="mode-title">Run online</div>
+      <p>Open the browser playground immediately. No installation and no Oracle credentials are required for the offline analyzers.</p>
+      <div class="links"><a href="playground.html?tool=ora-impact">Open browser playground</a></div>
+    </div>
+    <div class="card use-card">
+      <div class="mode-title">Install one tool</div>
+      <p>Every tool has its own GitHub repository, README, CLI entry point, examples and tests. Install only the tools you need.</p>
+      <div class="links"><a href="https://github.com/raoulmunet?tab=repositories&q=ora-&type=source">Browse repositories</a></div>
+    </div>
+    <div class="card use-card">
+      <div class="mode-title">Install the complete suite locally</div>
+      <p>Install all tools plus the local browser UI. Choose a localhost port and use the suite at an address such as <code>http://127.0.0.1:8765/</code>.</p>
+      <div class="links"><a href="#" id="installLocalBtn">Install locally</a></div>
+    </div>
+  </div>
+</section>
+
 <section>
   <div class="section-head">
     <h2>Compatibility</h2>
@@ -198,4 +228,40 @@ footer{padding:36px 0 60px;border-top:1px solid var(--line);color:var(--muted);f
 </main>
 
 <footer><div class="wrap">Oracle Dev Tools · maintained by Raoul Munet · MIT licensed</div></footer>
+
+<div class="modal-backdrop" id="installModal" role="dialog" aria-modal="true" aria-labelledby="installTitle">
+  <div class="modal">
+    <h2 id="installTitle">Install Oracle Dev Tools locally</h2>
+    <p>This downloads the cross-platform installer. Your browser cannot execute it automatically; you remain in control of the installation.</p>
+    <ul>
+      <li>Requires <strong>Python 3.10+</strong>.</li>
+      <li>Works on Windows, Linux and macOS.</li>
+      <li>Installs the complete CLI suite in <code>~/.oracle-dev-tools/</code>.</li>
+      <li>Installs the local browser UI and lets you choose one of the supported localhost ports.</li>
+      <li>The local server listens only on <code>127.0.0.1</code>.</li>
+    </ul>
+    <p>After download, run:</p>
+    <pre>Windows:  py install_all.py
+Linux/macOS:  python3 install_all.py</pre>
+    <p>The installer will explain the selected port and the final local URL when it finishes.</p>
+    <div class="modal-actions">
+      <button class="btn" id="cancelInstallBtn" type="button">Cancel</button>
+      <a class="btn primary" id="confirmInstallBtn" href="https://raw.githubusercontent.com/raoulmunet/ora-core/main/install_all.py" download="install_all.py">Approve & download installer</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const modal=document.getElementById('installModal');
+  const open=document.getElementById('installLocalBtn');
+  const cancel=document.getElementById('cancelInstallBtn');
+  const confirm=document.getElementById('confirmInstallBtn');
+  if(open) open.addEventListener('click',function(e){e.preventDefault();modal.classList.add('open')});
+  if(cancel) cancel.addEventListener('click',function(){modal.classList.remove('open')});
+  if(confirm) confirm.addEventListener('click',function(){setTimeout(function(){modal.classList.remove('open')},200)});
+  modal.addEventListener('click',function(e){if(e.target===modal)modal.classList.remove('open')});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')modal.classList.remove('open')});
+})();
+</script>
 </body></html>
