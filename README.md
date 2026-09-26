@@ -122,6 +122,14 @@ Downstream tools must surface these limitations rather than silently guessing.
 3. **Version clarity** — Oracle 19c, 23ai and 26ai differences must be called out explicitly.
 4. **Small API surface** — companion tools should be able to depend on the core without pulling a large framework.
 
+## Oracle Dev Tools landing page
+
+The suite has a single visual landing page in [`docs/index.html`](docs/index.html), intended to be published with GitHub Pages from the `main` branch and `/docs` folder.
+
+Expected public URL after Pages is enabled:
+
+`https://raoulmunet.github.io/ora-core/`
+
 ## Oracle Dev Tools family
 
 This repository is part of the **Oracle Dev Tools** suite: small, composable developer utilities designed around Oracle Database 19c, 23ai and 26ai.
