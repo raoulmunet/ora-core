@@ -1,0 +1,28 @@
+name: cross-platform installer
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "install_all.py"
+      - ".github/workflows/install-all.yml"
+
+jobs:
+  install-suite:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install complete suite
+        run: python install_all.py --install-dir "${{ runner.temp }}/oracle-dev-tools" --yes
+
+      - name: Verify complete suite
+        run: python install_all.py --install-dir "${{ runner.temp }}/oracle-dev-tools" --check
